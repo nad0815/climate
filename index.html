@@ -1,0 +1,131 @@
+<!--DOCTYPE html-->
+<html lang="en"> 
+<head>
+<meta charset="utf-8"/>
+<title>Global temperature</title> 
+<!--<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+ tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+});
+</script>
+<script type="text/javascript"
+ src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>-->
+<!-- we separate the script parts into a separate file for code sanity and to have proper symtaxhighliting in the editor...-->
+<!-- The WebGL API from http://www.webglearth.org/api-->
+<style>
+      html, body{padding-left: 40; padding-right: 40; margin: 10; color: #111111}
+      a:link { text-decoration:none;color:#998800; }
+      a:visited { text-decoration:none;  color:#cc9900; }
+      #earth_div{top: 0; right: 0; bottom: 0; left: 0;}
+      *.months{cursor:pointer; display:inline-block; background:#ddd; padding-right:11px; padding-left:11px; border-width:1px;border-style:solid; border-color:#aaa;margin:1px;}
+*.year,*.allmarkers{cursor:pointer; display:inline-block; background:#ddd; padding-right:10px;padding-left:10px;border-width:1px;border-style:solid; border-color:#aaa;margin:1px;}
+      </style>
+<script src="./api.js"></script>
+    
+<script type="text/javascript" src="./tempGlobe.js">
+</script>
+
+ </head>
+
+<body onload="init();" id="bodyid" style="font-size:90%;font-family:Verdana,sans-serif;">
+
+<br/>
+<h1 style="color:#111111">Temperature Data from Stations around the Globe, collected by CRUTEM 4</h1>
+  <div id="earth_div" style="width:600px;height:400px;border:1px solid gray; padding:2px;"></div>
+
+<canvas width="620" height="30" id="co2id" style="margin-left:0px;">
+</canvas>
+<br/>
+<br/>
+<table><tr><td rowspan='1' style="padding-right:20px;">temperature station density: </td><td colspan='2'><input type="range" min="5" max="100" value="100" step="5" onchange="setDensity(this.value);" id="slider"/></td><td  style="padding-left:44px;" rowspan='1'><span class="allmarkers" onclick="setSkip(1)"> show all (slow!) </span></td></tr>
+ <tr><td></td><td align='left'>low</td><td align='right'>high</td><td></td>
+   </tr>
+</table>
+<span class="months" onclick="toggleMarkers()"> markers on/off </span>
+<br/>
+<br/>
+<span class="months" id="0" onclick="setMonth(0);">jan</span><span class="months" id="1" onclick="setMonth(1);">feb</span><span class="months" id="2" onclick="setMonth(2);">mar</span><span class="months" id="3" onclick="setMonth(3);">apr</span><span class="months" id="4" onclick="setMonth(4);">may</span><span class="months" id="5" onclick="setMonth(5);">jun</span><span class="months" id="6" onclick="setMonth(6);">jul</span><span class="months" id="7" onclick="setMonth(7);">aug</span><span class="months" id="8" onclick="setMonth(8);">sep</span><span class="months" id="9" onclick="setMonth(9);">oct</span><span class="months" id="10" onclick="setMonth(10);">nov</span><span class="months" id="11" onclick="setMonth(11);">dec</span> 
+<br/>
+<br/>
+<div id="ydiv">
+</div>
+
+ <br/>
+The measurement data of the CRUTEM 4 collection starts at January 1701.
+<div id="writeTo">
+</div> 
+
+
+<br/>
+<!--<span style="color:#ff0000;font-size:80%;padding-left:30px">Please drag vertical bar with mouse.</span> -->
+
+
+
+
+<h2 style="padding-left:0px;padding-right:60px;font-size:110%;font-weight:bold;">What can I see here?
+</h2>
+<div>
+In the map you can explore the global temperature data, as collected by the <a href="http://www.cru.uea.ac.uk/cru/data/temperature/">Climatic Research Unit (CRU)</a>  (University of East Anglia) in conjunction with the Hadley Centre (at the UK Met Office). The data is from temperature stations around the globe and called CRUTEM 4 (station data). The globe can be rotated, dragged and zoomed in and out. Month and years can be altered via clicking the repective month and year buttons. The density slider provides a choice of the temperature stations contained in CRUTEM 4. Displaying all stations needs a long loading time and makes the application rather slow, but if you want to retrieve all stations this can be done via the "show all" -button. Please note that the markers also need longer loading time for that case. The temperature stations are shown as colored rectangles at their respective earth coordinates (latitude, longitude). A station with invalid temperature data is black, a station, which is not active in the corresponding investigated year is transparent with a small frame. 
+</div>
+<br/>
+<div>
+
+Details about each station can be retrieved via the marker button which provides a marker for each station. Even inactive stations carry a marker.  A click on each marker reveals an information window with details about the respective station. We are not fully happy with the markers (we would have preferred to turn the colored rectangles into markers, however this would have included more work and in particular more webGl earth tweaking. An option to mark regions for display was omitted for the same reason).
+
+</div>
+<br/>
+<div>
+
+<h2 style="padding-left:0px;padding-right:60px;font-size:110%;font-weight:bold;">Is there something bad?</h2>
+
+The given CRUTEM4 temperature collection was until 2011 and in a blog entry at our blog <a href="http://www.randform.org/blog/?p=5642">randform</a> it was pointed out that the data contained in the CRUTEM 4 collection has been rather rapidly "decaying". That is on one hand the number of active measurement stations which were listed in this file (some stations started measuring already in the 18th century) decreased rather rapidly in the last ten years and/or the file contained increasingly invalid/no temperature data in the last ten years. In that context it is worthwhile to note that  <a href="http://www.cru.uea.ac.uk/cru/data/temperature/">according to the climate research unit</a>  CRUTEM 3 (grid data) is:
+</div>
+<br/>
+<div>
+<em>"Land air temperature anomalies on a 5 &#176; by 5 &#176; grid-box basis (to be superceded by CRUTEM4)"</em>
+</div>
+<br/>
+<div>
+The CRUTEM 3 data was <a href="http://www.ipcc-data.org/observ/clim/ar4_global.html ">according to</a> the <a href="http://en.wikipedia.org/wiki/Intergovernmental_Panel_on_Climate_Change">Intergovernmental panel on Climate Change (IPCC)</a> used for the <a href="http://en.wikipedia.org/wiki/IPCC_Fourth_Assessment_Report">IPCC fourth assessment report (AR 4)</a> and in particular:
+</div>
+<br/>
+<div>
+<em> "High resolution gridded fields can also be obtained from the Data Distribution Centre. These data are provided by the Climate Research Unit (CRU), but, compared with the CRUTEM3 data used in the Fourth Assessment Report, different techniques for filling data were used and the resulting data is considered to be less reliable as far as long term temperature changes are concerned. These data are available <a href="http://www.ipcc-data.org/observ/clim/cru_ts2_1.html">here</a>." 
+<br/>
+Content last modified: 23 May 2014</em>
+</div>
+<br/>
+<div>
+Wether the "deterioration of CRUTEM 4 data" has any effect on the assessment of the current global warming trends is another question. Explore yourself!
+
+
+</div>
+<br/>
+<div>
+<h2 style="padding-left:0px;padding-right:60px;font-size:110%;font-weight:bold;">Data ressources
+</h2>
+
+The above interactive map is written in javascript by Tim Hoffmann and Nadja Kutz. The program has an Apache 2.0 licence and builts upon the javascript program <a href="http://www.webglearth.org/">WebGL Earth</a> as of July 2014.
+</div>
+<br/>
+<div>
+The javascript program reads in global surface temperature data from CRUTEM 4 from the  <a href="http://www.cru.uea.ac.uk/cru/data/temperature/">Climatic Research Unit (University of East Anglia)</a> in conjunction with the Hadley Centre (at the UK Met Office). More detailled explanations about the original temperature data sources and the data file structure at
+<a href="http://www.cru.uea.ac.uk/cru/data/temperature/crutem4/station-data.htm">http://www.cru.uea.ac.uk/cru/data/temperature/crutem4/station-data.htm</a>.
+The original file was retrieved from: <a href="http://www.cru.uea.ac.uk/cru/data/temperature/crutem4/crutem4_asof020611_stns_used.zip">http://www.cru.uea.ac.uk/cru/data/temperature/crutem4/crutem4_asof020611_stns_used.zip</a> on Aug 20, 2014 ca. 10.00 am CET and stored locally. The source code provides more details about the exact data and data extraction. 
+
+</div>
+<br/>
+<div>
+<!--crutem 4 data 
+-->
+
+
+<br/>
+<br/>
+<br/>
+<br/>
+
+
+</body>
+</html>
